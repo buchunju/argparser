@@ -1,0 +1,37 @@
+Project: Argparser v0.0.1
+Author : Kenneth Buchunju
+Email  : kennethbuchunju@gmail.com
+
+----------------------------------------------------
+
+A simple command line argment parser 
+
+----------------------------------------------------
+-----------[ BASICS OF THE ARGPARSER]---------------
+
+argument types:
+    - int         * Integer
+    - float       * Float
+    - double      * Double
+    - string      * String
+    - char        * Character
+    - bool        * True or false, yes or no
+    - none        * No type
+
+
+================= API ::::::
+
+################# Argparser class
+
+argparser(int argc, char** argv)
+
+void add_option(const char* a_name, const char* alt_name, bool *is_parsed, 
+                const char* desc)
+
+void add_option(const char* a_name, const char* alt_name, bool *is_parsed, 
+                arg_type type, type* ref, const char* desc)
+
+int parse()
+
+void show_help(const char* message)
+
