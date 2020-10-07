@@ -19,19 +19,5 @@ argument types:
     - none        * No type
 
 
-================= API ::::::
 
-################# Argparser class
-
-argparser(int argc, char** argv)
-
-void add_option(const char* a_name, const char* alt_name, bool *is_parsed, 
-                const char* desc)
-
-void add_option(const char* a_name, const char* alt_name, bool *is_parsed, 
-                arg_type type, type* ref, const char* desc)
-
-int parse()
-
-void show_help(const char* message)
 

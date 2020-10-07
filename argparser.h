@@ -5,8 +5,10 @@
 #include <iostream>
 #include <string.h>
 #include <vector>
+#include <list>
+#include <map>
 
-const int LINE_LENGTH = 90;
+const int LINE_LENGTH = 100;
 
 
 enum arg_type{
@@ -22,38 +24,61 @@ enum arg_type{
 
 struct option_t
 {
-        std::string opt_name;
-        std::string opt_alt_name;
-        bool* is_parsed;
-        arg_type opt_type;
-        void *opt_ref;
-        std::string opt_desc;
+    bool is_required;
+    std::string opt_name;
+    std::string opt_alt_name;
+    bool* is_parsed;
+    arg_type opt_type;
+    void *opt_ref;
+    std::string opt_desc;
 };
 
 class argparser{
 public:
-    argparser(int argc, char **argv, const char* header_desc  = "", const char* footer_desc = "");
+    argparser(int argc, char **argv);
 
     ~argparser();
     
-    void add_option(const char* a_name, const char* alt_name, bool *is_parsed, 
-                    const char* desc);
+    void add_option_group(const char* opt_group_dec = "");
 
     void add_option(const char* a_name, const char* alt_name, bool *is_parsed, 
-                    arg_type type, void* ref, const char* desc);
+                    const char* desc, bool is_required);
+
+    void add_option(const char* a_name, const char* alt_name, bool *is_parsed, 
+                    arg_type type, void* ref, const char* desc,  bool is_required);
 
     int parse();
 
     void set_usage_info(std::string info);
 
+    void set_header_info(std::string info);
+
+    void set_footer_info(std::string info);
+
 private:
+    struct opt_check{
+        
+        void operator=(opt_check &tmp)
+        {
+            this->group = tmp.group;
+            this->index = tmp.index;
+        }
+
+        std::string group;
+        int index;
+    } ;
+
     void show_help(std::string message = "");
 
     void add_help_option();
 
-    int check_option(const char* opt);
+    opt_check check_option(const char* opt);
 
-    int index_accessed(int index);
+    int check_duplicate(const char* a_name, const char* alt_name);
+
+    int required_options();
+
+    int index_accessed(const char* a_name);
 
     std::string f_output_line(std::string n_opt, std::string a_opt, std::string data);
 
@@ -61,13 +86,19 @@ private:
 
     void get_opt_len();
 
-    std::vector<option_t> options;
+    int format_description(std::string data);
 
-    std::vector<int> accessed_index;
+    std::string current_group;
+
+    std::map<std::string, std::vector<option_t>> my_options;
+
+    std::list<std::string> accessed_index;
 
     int argc;
 
     char** argv;
+
+    std::string help_opt[2];
 
     std::string header;
 
@@ -75,11 +106,11 @@ private:
 
     std::string usage_info;
 
-    int max_opt_len = 0;
+    size_t max_opt_len = 0;
 
-    int max_alt_opt_len = 0;
+    size_t max_alt_opt_len = 0;
 
-    int opt_len = 0;
+    size_t opt_len = 0;
 };
 
 
