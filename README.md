@@ -11,7 +11,7 @@ Takes argc and argv as arguments.
 ```c++
 argparser::argparser(int argc, char** argv);
 ```
-### ARGUMENT VALUE TYPE ###
+### Argument Value type ###
 
 ```c++
 enum arg_type{
@@ -29,27 +29,27 @@ enum arg_type{
 ### Add_option ###
 Takes a_name as long name, alt_name as short name, desc as option description
 is_parsed reference to where to store a boolean true if the argument has been 
-passed though cmd,
+passed though cmd, 
 is_required is true if option is required.
 ```c++
     void add_option(const char* a_name, const char* alt_name, bool *is_parsed, 
                     const char* desc, bool is_required);
 ```
-Argument type for the type of value parsed.
+Argument type for the type of value parsed. 
 Argument ref reference to where to store the value.
 ```c++
         void add_option(const char* a_name, const char* alt_name, bool *is_parsed, 
                     arg_type type, void* ref, const char* desc,  bool is_required);
 ```
 
-Testing
+Testing.
 -------
 
 ### Compiling the test file ###
     make 
 
 
-Examples
+Example.
 --------
 ```c++
     bool age_parsed   = false;
