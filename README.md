@@ -1,13 +1,15 @@
 argparser v0.0.1
 ================
 
-A simple and small c++ argument parser.
+> A simple and small c++ argument parser.
+
+***
 
 API Summary
 -----------
 
 ### Constructor ###
-Takes argc and argv as arguments.
+Takes ___argc___ and ___argv___ as arguments.
 ```c++
 argparser::argparser(int argc, char** argv);
 ```
@@ -27,16 +29,15 @@ enum arg_type{
 ```
 
 ### Add_option ###
-Takes a_name as long name, alt_name as short name, desc as option description
-is_parsed reference to where to store a boolean true if the argument has been 
-passed though cmd, 
-is_required is true if option is required.
+Takes ___a_name___ as _long name_, ___alt_name___ as _short name_, ___desc___ as _option description_, 
+___is_parsed___ reference to where to _store a boolean_ true if the argument has been 
+passed though cmd, ___is_required___ is true if _option is required_.
 ```c++
     void add_option(const char* a_name, const char* alt_name, bool *is_parsed, 
                     const char* desc, bool is_required);
 ```
-Argument type for the type of value parsed. 
-Argument ref reference to where to store the value.
+Argument ___type___ for the type of value parsed. 
+Argument ___ref___ reference to where to store the value.
 ```c++
         void add_option(const char* a_name, const char* alt_name, bool *is_parsed, 
                     arg_type type, void* ref, const char* desc,  bool is_required);
