@@ -267,11 +267,15 @@ void argparser::show_help(std::string message)
     {
         help_buff = message + "\n\n";
     }
+
+    if(usage_info.length() == 0)
+    {
+        help_buff.append("Usage: " + appname + " [options] ...\n\n");
+    }
+    else {
+        help_buff.append(usage_info + "\n\n");
+    }
     
-    help_buff.append("Usage: " + appname + " [options] ...\n\n"
-                     + usage_info + "\n\n");
-
-
     if(this->header.length() != 0)
     {
         help_buff.append(this->header + "\n");
@@ -464,6 +468,7 @@ void argparser::set_usage_info(std::string info)
 {
     this->usage_info = info;
 }
+
 void argparser::set_header_info(std::string info)
 {
     this->header = info;
