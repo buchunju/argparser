@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
 
     argparser m_argparse(argc, argv);
 
-    m_argparse.set_usage_info("This is just a simple test.");
+    m_argparse.set_usage_info("./test [option] <value> ..");
 
     m_argparse.set_header_info("Simple program v0.0.1.");
     m_argparse.set_footer_info("Developed by kenneth buchunju\n"
