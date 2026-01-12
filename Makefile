@@ -5,7 +5,7 @@
 
 CXX=g++
 
-CXX_FLAGS= -Wall -O2 -std=c++11
+CXX_FLAGS= -Wall -O2 -std=c++17
 
 all: test
 
@@ -19,4 +19,4 @@ argparser.o : argparser.cpp
 	${CXX} ${CXX_FLAGS} -c $^ -o $@
 
 clean: 
-	rm -f test.o argparser.o
+	rm -f test.o argparser.o test.exe

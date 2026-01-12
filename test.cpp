@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
     m_argparse.add_option("hello","hl",&hello_parsed, "A simple hello greeting", false);
 
     m_argparse.add_option_group("Haha options.");
-    m_argparse.add_option("age", "a", &age_parsed, A_INT, (void*)&m_age, "Age of the user",true); 
+    m_argparse.add_option("age", "a", &age_parsed, &m_age, "Age of the user",true); 
     m_argparse.add_option("long","l",&long_parsed,
                         "This is a very long line to test the length of the option description. "
                         "Just for testing purposes. It can be as long as possible",false);

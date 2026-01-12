@@ -8,31 +8,18 @@
 ** Copyright 2020 Kenneth Buchunju <buchunjukenneth@gmail.com>
 **
 ******************************************************/
-
-
 #ifndef _ARGPARSER_H
 #define _ARGPARSER_H
 
 #include <string>
 #include <iostream>
-#include <string.h>
 #include <vector>
 #include <list>
 #include <map>
+#include <functional>
+#include <type_traits>
 
 const int LINE_LENGTH = 100; // Length of the line in help menu.
-
-// Argument types that can be parsed.
-enum arg_type{
-    A_INT    = 0,
-    A_FLOAT  = 1,
-    A_DOUBLE = 2,
-    A_STRING = 3,
-    A_CHAR   = 4,
-    A_BOOL   = 5,
-    A_NONE   = 6
-
-};
 
 // Structure for holding parsed data.
 struct option_t
@@ -41,9 +28,9 @@ struct option_t
     std::string opt_name;     // Option name. (long)
     std::string opt_alt_name; // Option name. (short)
     bool* is_parsed;          // Has argument been parsed.
-    arg_type opt_type;        // Type of argument parsed.
-    void *opt_ref;            // Reference pointing to where to store parsed values.
     std::string opt_desc;     // Option description
+    std::function<void(const std::string&)> setter; // Function to store data
+    bool is_flag;             // If true, no value is consumed (like --help or -v)
 };
 
 class argparser{
@@ -67,28 +54,56 @@ public:
     void add_option_group(const char* opt_group_dec = "");
 
     /**
-     * @brief add_option add options that will be used for parsing.
+     * @brief add_option for FLAG options (no value expected).
      * @param a_name const char* long option name.
      * @param alt_name const char* short option name.
-     * @param is_parsed bool true if argument has been parsed.
+     * @param is_parsed bool* pointer to flag indicating if parsed set to true if found.
      * @param desc const char* option description.
      * @param is_required bool true if argument is required.
      */
     void add_option(const char* a_name, const char* alt_name, bool *is_parsed, 
-                    const char* desc, bool is_required);
+                    const char* desc, bool is_required = false);
 
     /**
-     * @brief add_option add options that will be used for parsing.
+     * @brief add_option for VALUE options.
      * @param a_name const char* long option name.
      * @param alt_name const char* short option name.
-     * @param is_parsed bool true if argument has been parsed.
-     * @param type arg_type type of argument value to parse.
-     * @param ref void* ref to where to store value.
+     * @param is_parsed bool* pointer to flag indicating if parsed.
+     * @param ref T* pointer to variable where value will be stored.
      * @param desc const char* option description.
      * @param is_required bool true if argument is required.
      */
+    template<typename T>
     void add_option(const char* a_name, const char* alt_name, bool *is_parsed, 
-                    arg_type type, void* ref, const char* desc,  bool is_required);
+                    T* ref, const char* desc,  bool is_required = false)
+    {
+        auto setter = [ref, a_name](const std::string& val) {
+            if constexpr (std::is_same_v<T, int>) {
+                try { *ref = std::stoi(val); } catch(...) { 
+                    std::cerr << "[E] Invalid integer for option --" << a_name << ": " << val << std::endl; exit(1);
+                }
+            } else if constexpr (std::is_same_v<T, float>) {
+                try { *ref = std::stof(val); } catch(...) {
+                    std::cerr << "[E] Invalid float for option --" << a_name << ": " << val << std::endl; exit(1);
+                }
+            } else if constexpr (std::is_same_v<T, double>) {
+                try { *ref = std::stod(val); } catch(...) {
+                    std::cerr << "[E] Invalid double for option --" << a_name << ": " << val << std::endl; exit(1);
+                }
+            } else if constexpr (std::is_same_v<T, std::string>) {
+                *ref = val;
+            } else if constexpr (std::is_same_v<T, char>) {
+                if(!val.empty()) *ref = val[0];
+            } else if constexpr (std::is_same_v<T, bool>) {
+                if(val == "true" || val == "True" || val == "1" || val == "y" || val == "Y") *ref = true;
+                else *ref = false;
+            } else {
+                 std::cerr << "[E] Unsupported type for option --" << a_name << std::endl; exit(1);
+            }
+        };
+
+        add_option_internal(a_name, alt_name, is_parsed, desc, is_required, setter, false);
+    }
 
     /**
      * @brief parse parsing the arguments passed to the constructer.
@@ -115,6 +130,12 @@ public:
     void set_footer_info(std::string info);
 
 private:
+
+    // Helper to add option with a constructed setter
+    void add_option_internal(const char* name, const char* alt, bool* parsed, 
+                           const char* desc, bool required, 
+                           std::function<void(const std::string&)> setter, bool is_flag);
+
     /**
      * @brief The opt_check struct used for navigating through my_options variable.
      */
@@ -231,6 +252,5 @@ private:
 
     size_t opt_len = 0;
 };
-
 
 #endif /* _ARGPARSER_H */
