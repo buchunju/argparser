@@ -1,87 +1,150 @@
-argparser v0.0.1
-================
+# argparser
 
-> A simple and small c++ argument parser.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Language: C++](https://img.shields.io/badge/Language-C%2B%2B17-blue.svg)](https://isocpp.org/)
 
-***
+A lightweight, header-based C++ argument parser designed for simplicity and ease of use.
 
-API Summary
------------
+---
 
-### Constructor ###
-Takes ___argc___ and ___argv___ as arguments.
-```c++
+## Requirements
+
+- **C++17 or later**: This library uses template features (`if constexpr` and `std::is_same_v`) introduced in C++17.
+
+---
+
+## Features
+
+- **Simple API**: Easy to integrate and use.
+- **Type Safety**: Uses C++ templates for type-safe argument parsing.
+- **Short & Long Options**: Supports both `--long-name` and `-s` (short) formats.
+- **Option Groups**: Organize options for better help message layout.
+- **Required Options**: Mark specific arguments as mandatory.
+- **Custom Help**: Automatically generates a clean help menu with customizable header and footer.
+
+---
+
+## Quick Start
+
+### Basic Usage
+
+```cpp
+#include "argparser.h"
+#include <iostream>
+
+int main(int argc, char** argv) {
+    bool hello_parsed = false;
+    int age = 0;
+
+    argparser parser(argc, argv);
+    parser.set_header_info("My Awesome App v1.0");
+
+    // Add a flag (no value)
+    parser.add_option("hello", "h", &hello_parsed, "Print a greeting");
+
+    // Add a value option
+    parser.add_option("age", "a", &age, "user age", true);
+
+    if (parser.parse() != 0) return 1;
+
+    if (hello_parsed) std::cout << "Hello!" << std::endl;
+    std::cout << "Age: " << age << std::endl;
+
+    return 0;
+}
+```
+
+---
+
+## Detailed Type Support
+
+The `add_option` template supports the following types and parsing rules:
+
+| Type | Parsing Logic |
+| :--- | :--- |
+| `int`, `float`, `double` | Parsed using `std::stoi`, `std::stof`, or `std::stod`. |
+| `std::string` | Taken as-is. |
+| `char` | Takes the first character of the provided value. |
+| `bool` | Parsed as `true` if the value is: `true`, `True`, `1`, `y`, or `Y`. |
+
+---
+
+## Advanced Customization
+
+### Option Groups
+
+You can group related options together to make the help menu more readable:
+
+```cpp
+parser.add_option_group("File Options");
+parser.add_option("input", "i", &input_file, "Path to input file");
+parser.add_option("output", "o", &output_file, "Path to output file");
+
+parser.add_option_group("Debug Options");
+parser.add_option("verbose", "v", &is_verbose, "Enable verbose logging");
+```
+
+### Help Text
+
+Customize the info displayed when `--help` or `-h` is called:
+
+```cpp
+parser.set_header_info("Program Name v1.0.0 - A brief description.");
+parser.set_usage_info("Usage: my_app [options] <arguments>");
+parser.set_footer_info("For more information, visit: https://github.com/your/repo");
+```
+
+---
+
+## API Summary
+
+### Constructor
+```cpp
 argparser::argparser(int argc, char** argv);
 ```
-### Argument Value type ###
 
-```c++
-enum arg_type{
-    A_INT    = 0,
-    A_FLOAT  = 1,
-    A_DOUBLE = 2,
-    A_STRING = 3,
-    A_CHAR   = 4,
-    A_BOOL   = 5,
-    A_NONE   = 6
+### Adding Options
 
-};
+#### Flags (Options without values)
+```cpp
+void add_option(const char* long_name, 
+                const char* short_name, 
+                bool* is_parsed, 
+                const char *description, 
+                bool is_required = false);
 ```
 
-### Add_option ###
-Takes ___a_name___ as _long name_, ___alt_name___ as _short name_, ___desc___ as _option description_, 
-___is_parsed___ reference to where to _store a boolean_ true if the argument has been 
-passed though cmd, ___is_required___ is true if _option is required_.
-```c++
-    void add_option(const char* a_name, const char* alt_name, bool *is_parsed, 
-                    const char* desc, bool is_required);
-```
-Argument ___type___ for the type of value parsed. 
-Argument ___ref___ reference to where to store the value.
-```c++
-        void add_option(const char* a_name, const char* alt_name, bool *is_parsed, 
-                    arg_type type, void* ref, const char* desc,  bool is_required);
+#### Value Options
+```cpp
+template<typename T>
+void add_option(const char* long_name, 
+                const char* short_name, 
+                bool* is_parsed, 
+                T* reference, 
+                const char* description, 
+                bool is_required = false);
 ```
 
-Testing.
--------
-
-### Compiling the test file ###
-    make 
-
-
-Example.
---------
-```c++
-    bool age_parsed   = false;
-    bool hello_parsed = false;
-    
-    int m_age;
-    
-    argparser m_argparse(argc, argv);
-
-    m_argparse.set_header_info("Simple program v0.0.1.");
-    
-    m_argparse.set_footer_info("Developed by kenneth buchunju\n"
-                               "(C) 2020 <buchunjukenneth@gmail.com>.");
-
-    m_argparse.add_option_group("General options.");
-    m_argparse.add_option("hello","hl",&hello_parsed, "A simple hello greeting", false);
-
-    m_argparse.add_option_group("Misc options.");
-    m_argparse.add_option("age", "a", &age_parsed, A_INT, (void*)&m_age, "Age of the user",true); 
-
-
-    m_argparse.parse();
-    
-    if(age_parsed)
-    {
-        std::cout << "Your age is: " << m_age << std::endl;
-    }
-    
-    if(hello_parsed)
-    {
-        std::cout << "Hello there" << std::endl;
-    }
-
+### Parsing
+```cpp
+int parse(); // Returns 0 on success, prints errors to cerr and exits on failure.
 ```
+
+---
+
+## Building and Testing
+
+The project includes a `Makefile` for easy compilation of the test utility.
+
+```bash
+make
+./test --help
+```
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the source files for details.
+Copyright (c) 2020 Kenneth Buchunju.
+
